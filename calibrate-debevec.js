@@ -1,30 +1,4 @@
 /**
- * Vector and Matrix classes from the linear_algebra module.
- * @typedef {Object} Vector
- * @typedef {Object} Matrix
- */
-const { Vector, Matrix } = linear_algebra;
-
-/** @type {Vector} v1 - A vector with values [1, 2, 3] */
-const v1 = new Vector([1, 2, 3]);
-
-/** @type {Vector} v2 - A vector with values [4, 5, 6] */
-const v2 = new Vector([4, 5, 6]);
-
-/** @type {Vector} sum - The sum of v1 and v2 */
-const sum = v1.add(v2);
-
-/** @type {number} dotProduct - The dot product of v1 and v2 */
-const dotProduct = v1.dot(v2);
-
-console.log('Vector sum:', sum);
-console.log('Dot product:', dotProduct);
-
-class ImageRGB {
-
-}
-
-/**
  * Class representing the CalibrateDebevec algorithm.
  */
 export class CalibrateDebevec {
@@ -63,7 +37,7 @@ export class CalibrateDebevec {
 
     /**
      * Calibrate the images using the Debevec method.
-     * @param {Array<Array<Matrix>>} images - The array of images to calibrate, .
+     * @param {Array<Array<math.Matrix>>} images - The array of images to calibrate, .
      * @param {Array<number>} exposureTimes - The array of corresponding exposure times.
      * @returns {Vector} The computed response curve.
      * @throws {Error} If images and exposureTimes are not arrays of the same length.
