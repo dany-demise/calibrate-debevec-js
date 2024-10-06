@@ -68,7 +68,7 @@ export class CalibrateDebevec {
      * @returns {Vector} The computed response curve.
      * @throws {Error} If images and exposureTimes are not arrays of the same length.
      */
-    calibrate(images, exposureTimes) {
+    process(images, exposureTimes) {
         if (!Array.isArray(images) || images.length === 0 || images.length !== exposureTimes.length) {
             throw new Error("Invalid input: images and exposureTimes must be arrays of the same length.");
         }
