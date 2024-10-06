@@ -26,10 +26,7 @@
                 this.width = width;
                 this.height = height;            
             }
-            getAt(x, y) {
-                const index = y * this.width + x;
-                return this.array[index];
-            }
+            getAt(x, y) { return this.array[y * this.width + x]; }
         }
 
         // Function to convert File object to RGB matrices
