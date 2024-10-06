@@ -65,9 +65,9 @@
                         }
 
                         // Convert arrays to Matrix instances
-                        const RMatrix = new matrix(R);
-                        const GMatrix = new matrix(G);
-                        const BMatrix = new matrix(B);
+                        const RMatrix = math.matrix(R);
+                        const GMatrix = math.matrix(G);
+                        const BMatrix = math.matrix(B);
 
                         resolve([RMatrix, GMatrix, BMatrix]);
                     } catch (error) {
