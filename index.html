@@ -6,6 +6,7 @@
     <title>Linear Algebra JS Example</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/13.1.1/math.min.js"></script>
     <script src="calibrate-debevec.js"></script>
+
 </head>
 <body>
     <h1>Linear Algebra JS Example</h1>
@@ -16,7 +17,16 @@
     <!-- Container to display matrices -->
     <div id="matrixContainer"></div>
 
-    <script>
+    <script type="module">
+        // import { CalibrateDebevec } from './calibrate-debevec.js';
+
+        class ImageRGB {
+            constructor(array, width, height) {
+                this.array = array;
+                this.width = width;
+                this.height = height;            
+            }
+        }
 
         // Function to convert File object to RGB matrices
         async function fileObjectToImageRgb(file) {
@@ -45,36 +55,50 @@
                         const width = img.width;
                         const height = img.height;
 
-                        // Initialize arrays for R, G, B channels
-                        const R = [];
-                        const G = [];
-                        const B = [];
+                        let theImage = new ImageRGB(data, width, height);
 
-                        for (let y = 0; y < height; y++) {
-                            const rowR = [];
-                            const rowG = [];
-                            const rowB = [];
-                            for (let x = 0; x < width; x++) {
-                                const index = (y * width + x) * 4;
-                                rowR.push(data[index]);     // Red channel
-                                rowG.push(data[index + 1]); // Green channel
-                                rowB.push(data[index + 2]); // Blue channel
-                            }
-                            R.push(rowR);
-                            G.push(rowG);
-                            B.push(rowB);
-                        }
+                        resolve(theImage);
 
-                        // Convert arrays to Matrix instances
-                        const RMatrix = math.matrix(R);
-                        const GMatrix = math.matrix(G);
-                        const BMatrix = math.matrix(B);
 
-                        resolve([RMatrix, GMatrix, BMatrix]);
+
+                        // // Initialize arrays for R, G, B channels
+                        // const R = [];
+                        // const G = [];
+                        // const B = [];
+
+                        // for (let y = 0; y < height; y++) {
+                        //     const rowR = [];
+                        //     const rowG = [];
+                        //     const rowB = [];
+                        //     for (let x = 0; x < width; x++) {
+                        //         const index = (y * width + x) * 4;
+                        //         rowR.push(data[index]);     // Red channel
+                        //         rowG.push(data[index + 1]); // Green channel
+                        //         rowB.push(data[index + 2]); // Blue channel
+                        //     }
+                        //     R.push(rowR);
+                        //     G.push(rowG);
+                        //     B.push(rowB);
+                        // }
+
+                        // // Convert arrays to Matrix instances
+                        // const RMatrix = math.matrix(R);
+                        // const GMatrix = math.matrix(G);
+                        // const BMatrix = math.matrix(B);
+
+                        // //canvas.width = 0;
+                        // //canvas.height = 0;
+                        // //img.src = '';
+                        // R.splice(0, R.length);
+                        // G.splice(0, G.length);
+                        // B.splice(0, B.length);
+
+                        // resolve([RMatrix, GMatrix, BMatrix]);
                     } catch (error) {
                         alert('An error occurred while processing the image: ' + error.message);
                         reject(error);
                     }
+                    
                 };
 
                 img.onerror = function() {
@@ -138,16 +162,17 @@
             const container = document.getElementById('matrixContainer');
             container.innerHTML = '';
 
-            let images = {};
+            const images = [];
 
             // Iterate over selected files
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
-                await fileObjectToImageRgb(file)
-                    .then(function([R, G, B]) {
+                fileObjectToImageRgb(file)
+                    .then(function(imageRgb) {
                         // Display the matrices on the page
-                        displayMatrices(file.name, R, G, B);
-                        images[file.name] = [R,G,B];
+                        // displayMatrices(file.name, R, G, B);
+                        console.log(imageRgb.array.length);
+                        images.push(imageRgb);
                     })
                     .catch(function(error) {
                         // Exception is re-thrown after alert
