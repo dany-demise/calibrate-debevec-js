@@ -1,7 +1,17 @@
 /**
  * Class representing the CalibrateDebevec algorithm.
  */
-export class CalibrateDebevec {
+
+class ImageRGB {
+    constructor(array, width, height) {
+        this.array = array;
+        this.width = width;
+        this.height = height;            
+    }
+    getAt(x, y) { return this.array[y * this.width + x]; }
+}
+
+class CalibrateDebevec {
     /**
      * Creates an instance of CalibrateDebevec.
      * @param {number} [samples=70] - The number of samples to use.
@@ -65,4 +75,60 @@ export class CalibrateDebevec {
             curve: "Sample response curve (replace with real implementation)"
         };
     }
+}
+
+
+// Function to convert File object to RGB matrices
+async function fileObjectToImageRgb(file) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        const reader = new FileReader();
+
+        // Load the image from the File object
+        reader.onload = function(e) {
+            img.src = e.target.result;
+        };
+
+        img.onload = function() {
+            try {
+                // Create a canvas to draw the image
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                context.drawImage(img, 0, 0);
+
+                // Get image data from the canvas
+                const imageData = context.getImageData(0, 0, img.width, img.height);
+                const data = imageData.data; // Pixel data array
+
+                const width = img.width;
+                const height = img.height;
+
+                let theImage = new ImageRGB(data, width, height);
+
+                resolve(theImage);
+
+            } catch (error) {
+                alert('An error occurred while processing the image: ' + error.message);
+                reject(error);
+            }
+            
+        };
+
+        img.onerror = function() {
+            const errorMessage = 'Error loading image ' + file.name;
+            alert(errorMessage);
+            reject(new Error(errorMessage));
+        };
+
+        // Read the file as a Data URL
+        reader.onerror = function() {
+            const errorMessage = 'Error reading file ' + file.name;
+            alert(errorMessage);
+            reject(new Error(errorMessage));
+        };
+
+        reader.readAsDataURL(file);
+    });
 }
