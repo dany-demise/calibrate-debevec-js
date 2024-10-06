@@ -20,10 +20,14 @@ const dotProduct = v1.dot(v2);
 console.log('Vector sum:', sum);
 console.log('Dot product:', dotProduct);
 
+class ImageRGB {
+
+}
+
 /**
  * Class representing the CalibrateDebevec algorithm.
  */
-class CalibrateDebevec {
+export class CalibrateDebevec {
     /**
      * Creates an instance of CalibrateDebevec.
      * @param {number} [samples=70] - The number of samples to use.
@@ -61,7 +65,7 @@ class CalibrateDebevec {
      * Calibrate the images using the Debevec method.
      * @param {Array<Array<Matrix>>} images - The array of images to calibrate, .
      * @param {Array<number>} exposureTimes - The array of corresponding exposure times.
-     * @returns {Object} The computed response curve.
+     * @returns {Vector} The computed response curve.
      * @throws {Error} If images and exposureTimes are not arrays of the same length.
      */
     calibrate(images, exposureTimes) {
@@ -87,19 +91,4 @@ class CalibrateDebevec {
             curve: "Sample response curve (replace with real implementation)"
         };
     }
-
-    /**
-     * Get the current calibration parameters.
-     * @returns {Object} The current parameters including samples, lambda, and random.
-     */
-    getParams() {
-        return {
-            samples: this.samples,
-            lambda: this.lambda,
-            random: this.random
-        };
-    }
 }
-
-// Use `export default` to export the class in ES6 style
-export default CalibrateDebevec;
