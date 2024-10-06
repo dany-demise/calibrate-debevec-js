@@ -31,53 +31,66 @@
                 };
 
                 img.onload = function() {
-                    // Create a canvas to draw the image
-                    const canvas = document.createElement('canvas');
-                    const context = canvas.getContext('2d');
-                    canvas.width = img.width;
-                    canvas.height = img.height;
-                    context.drawImage(img, 0, 0);
+                    try {
+                        // Create a canvas to draw the image
+                        const canvas = document.createElement('canvas');
+                        const context = canvas.getContext('2d');
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        context.drawImage(img, 0, 0);
 
-                    // Get image data from the canvas
-                    const imageData = context.getImageData(0, 0, img.width, img.height);
-                    const data = imageData.data; // Pixel data array
+                        // Get image data from the canvas
+                        const imageData = context.getImageData(0, 0, img.width, img.height);
+                        const data = imageData.data; // Pixel data array
 
-                    const width = img.width;
-                    const height = img.height;
+                        const width = img.width;
+                        const height = img.height;
 
-                    // Initialize arrays for R, G, B channels
-                    const R = [];
-                    const G = [];
-                    const B = [];
+                        // Initialize arrays for R, G, B channels
+                        const R = [];
+                        const G = [];
+                        const B = [];
 
-                    for (let y = 0; y < height; y++) {
-                        const rowR = [];
-                        const rowG = [];
-                        const rowB = [];
-                        for (let x = 0; x < width; x++) {
-                            const index = (y * width + x) * 4;
-                            rowR.push(data[index]);     // Red channel
-                            rowG.push(data[index + 1]); // Green channel
-                            rowB.push(data[index + 2]); // Blue channel
+                        for (let y = 0; y < height; y++) {
+                            const rowR = [];
+                            const rowG = [];
+                            const rowB = [];
+                            for (let x = 0; x < width; x++) {
+                                const index = (y * width + x) * 4;
+                                rowR.push(data[index]);     // Red channel
+                                rowG.push(data[index + 1]); // Green channel
+                                rowB.push(data[index + 2]); // Blue channel
+                            }
+                            R.push(rowR);
+                            G.push(rowG);
+                            B.push(rowB);
                         }
-                        R.push(rowR);
-                        G.push(rowG);
-                        B.push(rowB);
+
+                        // Convert arrays to Matrix instances
+                        const RMatrix = new Matrix(R);
+                        const GMatrix = new Matrix(G);
+                        const BMatrix = new Matrix(B);
+
+                        resolve([RMatrix, GMatrix, BMatrix]);
+                    } catch (error) {
+                        alert('An error occurred while processing the image: ' + error.message);
+                        reject(error);
                     }
-
-                    // Convert arrays to Matrix instances
-                    const RMatrix = new Matrix(R);
-                    const GMatrix = new Matrix(G);
-                    const BMatrix = new Matrix(B);
-
-                    resolve([RMatrix, GMatrix, BMatrix]);
                 };
 
                 img.onerror = function() {
-                    reject('Error loading image');
+                    const errorMessage = 'Error loading image ' + file.name;
+                    alert(errorMessage);
+                    reject(new Error(errorMessage));
                 };
 
                 // Read the file as a Data URL
+                reader.onerror = function() {
+                    const errorMessage = 'Error reading file ' + file.name;
+                    alert(errorMessage);
+                    reject(new Error(errorMessage));
+                };
+
                 reader.readAsDataURL(file);
             });
         }
@@ -135,7 +148,8 @@
                         displayMatrices(file.name, R, G, B);
                     })
                     .catch(function(error) {
-                        console.error(error);
+                        // Exception is re-thrown after alert
+                        throw error;
                     });
             }
         });
