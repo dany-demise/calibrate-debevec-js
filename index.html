@@ -105,19 +105,19 @@
             rTitle.textContent = 'R Matrix:';
 
             const rMatrixPre = document.createElement('pre');
-            rMatrixPre.textContent = R.toString();
+            rMatrixPre.textContent = R.size();
 
             const gTitle = document.createElement('h3');
             gTitle.textContent = 'G Matrix:';
 
             const gMatrixPre = document.createElement('pre');
-            gMatrixPre.textContent = G.toString();
+            gMatrixPre.textContent = G.size();
 
             const bTitle = document.createElement('h3');
             bTitle.textContent = 'B Matrix:';
 
             const bMatrixPre = document.createElement('pre');
-            bMatrixPre.textContent = B.toString();
+            bMatrixPre.textContent = B.size();
 
             // Append elements to the container
             container.appendChild(imageTitle);
