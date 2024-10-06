@@ -138,7 +138,7 @@
             const container = document.getElementById('matrixContainer');
             container.innerHTML = '';
 
-            let images = [];
+            let images = {};
 
             // Iterate over selected files
             for (let i = 0; i < files.length; i++) {
@@ -147,7 +147,7 @@
                     .then(function([R, G, B]) {
                         // Display the matrices on the page
                         displayMatrices(file.name, R, G, B);
-                        images.push([R,G,B])
+                        images[file.name] = [R,G,B];
                     })
                     .catch(function(error) {
                         // Exception is re-thrown after alert
