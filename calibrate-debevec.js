@@ -17,6 +17,21 @@ class ImageRGB {
     }
 }
 
+class PointRGB {
+    constructor(RGB, x, y) {
+        this.RGB = RGB
+        this.x = x;
+        this.y = y;
+    }
+    // Method to get the position of the point
+    getPosition() {
+        return { x: this.x, y: this.y };
+    }
+    getRGB() {
+        return this.RGB;
+    }
+}
+
 class CalibrateDebevec {
     /**
      * Creates an instance of CalibrateDebevec.
@@ -56,31 +71,37 @@ class CalibrateDebevec {
      * @param {Array<Array<ImageRGB>>} images - The array of images to calibrate, .
      * @param {Array<number>} exposureTimes - The array of corresponding exposure times.
      * @returns {Array<number>} The computed response curve.
-     * @throws {Error} If images and exposureTimes are not arrays of the same length.
      */
     process(images, exposureTimes) {
-        if (!Array.isArray(images) || images.length === 0 || images.length !== exposureTimes.length) {
-            throw new Error("Invalid input: images and exposureTimes must be arrays of the same length.");
-        }
+        const cols = images[0].width;
+        const rows = images[0].height;
         console.log("Calibrating using Debevec method...");
 
-        let responseCurve = this._computeResponseCurve(images, exposureTimes);
-        return responseCurve;
+        const pointsCoordinates = [];
+
+        // Generate 50 random points within the dimensions of the first image
+        const width = images[0].width;
+        const height = images[0].height;
+
+        for (let i = 0; i < this.samples; i++) {
+            const x = Math.floor(Math.random() * width);
+            const y = Math.floor(Math.random() * height);
+            pointsCoordinates.push({ x, y });
+        }
+
+        // Generate points for each image using the same random coordinates
+        const points = images.map(image => {
+            return pointsCoordinates.map(({ x, y }) => {
+                const RGB = image.getAt(x, y);
+                return new PointRGB(RGB, x, y);
+            });
+        });
+
+        console.log(points)
+
+        // return responseCurve;
     }
 
-    /**
-     * Private method to compute the response curve.
-     * @param {Array} images - The array of images.
-     * @param {Array<number>} exposureTimes - The array of exposure times.
-     * @returns {Object} A dummy response curve (replace with real implementation).
-     * @private
-     */
-    _computeResponseCurve(images, exposureTimes) {
-        console.log("Computing response curve...");
-        return {
-            curve: "Sample response curve (replace with real implementation)"
-        };
-    }
 }
 
 

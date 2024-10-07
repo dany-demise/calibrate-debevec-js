@@ -28,23 +28,29 @@
             const container = document.getElementById('matrixContainer');
             container.innerHTML = '';
 
+            const imagesPromises = [];
             const images = [];
 
             // Iterate over selected files
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
-                fileObjectToImageRgb(file)
-                    .then(function(imageRgb) {
-                        // Display the matrices on the page
-                        // displayMatrices(file.name, R, G, B);
-                        console.log(imageRgb.array.length);
-                        images.push(imageRgb);
-                    })
-                    .catch(function(error) {
-                        // Exception is re-thrown after alert
-                        throw error;
-                    });
+                imagesPromises.push(fileObjectToImageRgb(file));
             }
+
+            Promise.all(imagesPromises).then(imageRgbArray => {
+                // Push each processed image into the images array
+                imageRgbArray.forEach(imageRgb => {
+                    console.log(imageRgb.array.length);
+                    images.push(imageRgb);
+                });
+
+                // Now, all images are in the array, and we can proceed
+                let c = new CalibrateDebevec();
+                c.process(images, []);
+            });
+
+            // let c = new CalibrateDebevec();
+            // c.process(images, []);
         });
     </script>
 </body>
