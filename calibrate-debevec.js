@@ -8,7 +8,14 @@ class ImageRGB {
         this.width = width;
         this.height = height;            
     }
-    getAt(x, y) { return this.array[y * this.width + x]; }
+    getAt(x, y) {
+        const index = (y * this.width + x) * 3;
+        return [
+            this.array[index],     // Red component
+            this.array[index + 1], // Green component
+            this.array[index + 2]  // Blue component
+        ];
+    }
 }
 
 class CalibrateDebevec {
