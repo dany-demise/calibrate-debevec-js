@@ -157,9 +157,9 @@ class CalibrateDebevec {
       // Smoothness equations
       for (let i = 0; i < LDR_SIZE - 2; i++) {
          const weight = this.triangleWeights(i + 1);
-         A[k, i] = lambda * weight;
-         A[k, i + 1] = -2 * lambda * weight;
-         A[k, i + 2] = lambda * weight;
+         A.set([k, i], lambda * weight);
+         A.set([k, i + 1], -2 * lambda * weight);
+         A.set([k, i + 2], lambda * weight);
          k++;
       }
 
