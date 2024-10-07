@@ -1,4 +1,5 @@
 const LDR_SIZE = 256;
+
 class ImageRGB {
     constructor(array, width, height) {
         this.array = array;
