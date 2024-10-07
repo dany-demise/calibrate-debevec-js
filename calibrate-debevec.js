@@ -1,4 +1,5 @@
 const LDR_SIZE = 256;
+const CHANNELS = 3;
 
 class ImageRGB {
     constructor(array, width, height) {
@@ -52,9 +53,9 @@ class CalibrateDebevec {
 
     /**
      * Calibrate the images using the Debevec method.
-     * @param {Array<Array<math.Matrix>>} images - The array of images to calibrate, .
+     * @param {Array<Array<ImageRGB>>} images - The array of images to calibrate, .
      * @param {Array<number>} exposureTimes - The array of corresponding exposure times.
-     * @returns {Vector} The computed response curve.
+     * @returns {Array<number>} The computed response curve.
      * @throws {Error} If images and exposureTimes are not arrays of the same length.
      */
     process(images, exposureTimes) {
