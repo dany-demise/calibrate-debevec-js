@@ -19,6 +19,22 @@
 
     <script type="module">
 
+        function pToDiv(arrayOfArrays, divId) {
+    const div = document.getElementById(divId);
+    if (div && Array.isArray(arrayOfArrays)) {
+        div.innerHTML = ""; // Clear existing content
+        arrayOfArrays.forEach(subArray => {
+            if (Array.isArray(subArray)) {
+                const p = document.createElement("p");
+                p.textContent = subArray.join(", "); // Join sub-array elements with commas
+                div.appendChild(p);
+            }
+        });
+    } else {
+        console.error("Invalid div ID or array format");
+    }
+}
+
         
         // Event listener for file input changes
         document.getElementById('imageInput').addEventListener('change', function(event) {
@@ -46,7 +62,8 @@
 
                 // Now, all images are in the array, and we can proceed
                 let c = new CalibrateDebevec();
-                c.process(images, [0.125, 0.25, 0.50]);
+                r = c.process(images, [0.125, 0.25, 0.50]);
+                pToDiv(r, 'matrixContainer');
             });
 
             // let c = new CalibrateDebevec();
