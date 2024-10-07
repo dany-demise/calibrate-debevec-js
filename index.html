@@ -62,6 +62,7 @@
 
                 // Now, all images are in the array, and we can proceed
                 let c = new CalibrateDebevec();
+                console.alert("ok#1");
                 r = c.process(images, [0.125, 0.25, 0.50]);
                 pToDiv(r, 'matrixContainer');
             });
