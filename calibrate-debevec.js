@@ -25,10 +25,7 @@ class PointRGB {
    }
    // Method to get the position of the point
    getPosition() {
-      return {
-         x: this.x,
-         y: this.y
-      };
+      return { this.x, this.y };
    }
    getRGB() {
       return this.RGB;
@@ -112,7 +109,22 @@ class CalibrateDebevec {
          });
       });
 
-      console.log(points)
+      console.log(points);
+
+      const responseCurves = [];
+
+      // Process each channel separately
+      for (let c = 0; c < CHANNELS; c++) {
+          const { A, B } = buildSystem(images, times, points, c, lambda);
+
+          // Solve for this channel and apply exp step
+          const response = solveSystem(A, B);
+
+          // Store the linear response curve for the channel
+          responseCurves.push(response.slice(0, 256)); // Take only the first 256 values (LDR_SIZE)
+      }
+
+      return responseCurves;
 
       // return responseCurve;
    }
@@ -133,9 +145,9 @@ class CalibrateDebevec {
       let k = 0;
       for (let i = 0; i < points.length; i++) {
          for (let j = 0; j < images.length; j++) {
-            const [x, y] = points[i];
-            const val = images[j][y][x][channel]; // Access the channel value
-            const weight = triangleWeights(val);
+            const {x, y} = points[i].getPosition();
+            const val = images[j].getAt(x, y)[channel]; // Access the channel value
+            const weight = this.triangleWeights(val);
 
             A.set([k, val], weight);
             A.set([k, LDR_SIZE + i], -weight);
@@ -146,7 +158,7 @@ class CalibrateDebevec {
 
       // Smoothness equations
       for (let i = 0; i < LDR_SIZE - 2; i++) {
-         const weight = triangleWeights(i + 1);
+         const weight = this.triangleWeights(i + 1);
          A.set([k, i], lambda * weight);
          A.set([k, i + 1], -2 * lambda * weight);
          A.set([k, i + 2], lambda * weight);
