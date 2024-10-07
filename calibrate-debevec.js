@@ -147,9 +147,9 @@ class CalibrateDebevec {
             const val = images[j].getAt(x, y)[channel]; // Access the channel value
             const weight = this.triangleWeights(val);
 
-            A[k, val] =  weight;
-            A[k, LDR_SIZE + i] = -weight;
-            B[k, 0] = weight * Math.log(exposureTimes[j]);
+            A.set([k, val], weight);
+            A.set([k, LDR_SIZE + i], -weight);
+            B.set([k, 0], weight * Math.log(exposureTimes[j]));
             k++;
          }
       }
