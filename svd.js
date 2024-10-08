@@ -317,4 +317,4 @@ const SVD = (a, withu, withv, eps, tol) => {
     return { u, q, v }
   }
   
-  // export default SVD
+  // export default SVDs

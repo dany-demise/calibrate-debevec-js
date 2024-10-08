@@ -39,7 +39,7 @@ class CalibrateDebevec {
     * @param {number} [lambda=10.0] - The regularization parameter.
     * @param {boolean} [random=false] - Whether to use random sampling.
     */
-   constructor(samples = 500, lambda = 10.0, random = true) {
+   constructor(samples = 70, lambda = 10.0, random = true) {
       this.samples = samples;
       this.lambda = lambda;
       this.random = random;
@@ -83,17 +83,14 @@ class CalibrateDebevec {
 
       console.log(points);
 
-      const responseCurves = [];
-
       // Process each channel separately
-      
-      const { A, B } = this.buildSystem(images, exposureTimes, points, this.lambda);
+      let responseCurves = this.getResponseCurves(images, exposureTimes, points, this.lambda);
 
       // Solve for this channel and apply exp step
       // const response = this.solveSystem(A, B);
 
       // Store the linear response curve for the channel
-      responseCurves.push(response.slice(0, 256)); // Take only the first 256 values (LDR_SIZE)
+      // responseCurves.push(response.slice(0, 256)); // Take only the first 256 values (LDR_SIZE)
 
 
       return responseCurves;
@@ -108,13 +105,11 @@ class CalibrateDebevec {
    }
 
    // Build the system of equations for one channel
-   buildSystem(images, exposureTimes, points, lambda) {
+   getResponseCurves(images, exposureTimes, points, lambda) {
       const LDR_SIZE = 256;
       const n = points.length * images.length + LDR_SIZE + 1;
 
-      // results = [];
-
-      console.log('hi #1');
+      let responseCurves = [] // Should be 3 array of 256 vlues at the end
 
       for (let channel = 0; channel < CHANNELS; channel++) {
          let A = math.zeros([n, LDR_SIZE + points.length]);
@@ -133,42 +128,18 @@ class CalibrateDebevec {
                k++;
             }
          }
-
-         console.log('hi #2');
-
          // fix the curve by setting its middle value to 0
-         // A[k, LDR_SIZE / 2] = 1;
          A = math.subset(A, math.index(k, LDR_SIZE / 2), 1);
          k++;
-
-         console.log('hi #3');
 
          // Smoothness equations
          for (let i = 0; i < LDR_SIZE - 2; i++) {
             const weight = this.triangleWeights(i + 1);
-            // console.log('hi #31');
             A = math.subset(A, math.index(k, i), lambda * weight);
-            // console.log('hi #32');
             A = math.subset(A, math.index(k, i + 1), -2 * lambda * weight);
-            // console.log('hi #33');
             A = math.subset(A, math.index(k, i + 2), lambda * weight);
             k++;
          }
-
-         //A = math.subset(A, math.index(math.range(0, 259), math.range(0, 259)));
-         //B = math.subset(B, math.index(math.range(0, 259), 0));
-
-
-         console.log('hi #4');
-
-         console.log(A);
-         console.log(B);
-
-         console.log(
-            // this.solveSystem(A, B)
-
-            //SVD(A)
-         );
 
          // Perform Singular Value Decomposition on A
          const svd = SVD(A);
@@ -178,33 +149,23 @@ class CalibrateDebevec {
          const S = svd.q;       // Singular values (array of length n)
          const V = svd.v;       // Right singular vectors (n x n)
 
-         // Construct the diagonal matrix of singular values S
-         const S_matrix = math.diag(svd.q);
-
          // Compute the pseudoinverse of S
-         const S_inv = math.diag(svd.q.map(s => s > 1e-10 ? 1 / s : 0));
+         const S_inv = math.diag(S.map(s => s > 1e-10 ? 1 / s : 0));
 
          // Compute the pseudoinverse of A: A_pinv = V * S_inv * U^T
          const V_S_inv = math.multiply(V, S_inv);
          const A_pinv = math.multiply(V_S_inv, math.transpose(U));
 
          // Solve for x: x = A_pinv * B
-         const x = math.multiply(A_pinv, B);
-
-         console.log('Solution x:', x);
+         const logResponseCurve = math.multiply(A_pinv, B);
+         let responseCurve = logResponseCurve.map(value => Math.exp(value[0]));
+         console.log('Solution x:', responseCurve.slice(0, LDR_SIZE));
+         
+         responseCurves.push(responseCurve.slice(0, LDR_SIZE));
 
       }
 
-      // return { A, B };
-   }
-
-   // Solve the system and apply exp() step
-   solveSystem(A, B) {
-      const logResponse = math.lusolve(A, B);
-      // Apply exp to get the linear response
-      const response = logResponse.map(value => Math.exp(value[0]));
-      console.log(response);
-      return response;
+      return responseCurves;
    }
 
 }

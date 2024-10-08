@@ -61,9 +61,23 @@
                     images.push(imageRgb);
                 });
 
+                const exposureTimes = [
+                    0.00015625, // 1 / 6400
+                    0.0005,     // 1 / 2000
+                    0.0015625,  // 1 / 640
+                    0.003125,   // 1 / 320
+                    0.008,      // 1 / 125
+                    0.04,       // 1 / 25
+                    0.2,        // 1 / 5
+                    0.4,        // 1 / 2.5
+                    1.0,
+                    2.0,
+                    5.0
+                ];
+
                 // Now, all images are in the array, and we can proceed
                 let c = new CalibrateDebevec();
-                r = c.process(images, [0.0125, 0.0250, 0.05]);
+                r = c.process(images, exposureTimes);
                 console.log(r);
                 pToDiv(r, 'matrixContainer');
             });
