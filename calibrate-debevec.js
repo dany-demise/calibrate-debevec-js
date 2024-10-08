@@ -112,15 +112,15 @@ class CalibrateDebevec {
       const responseCurves = [];
 
       // Process each channel separately
-      for (let c = 0; c < CHANNELS; c++) {
-          const { A, B } = this.buildSystem(images, exposureTimes, points, c, this.lambda);
+      
+      const { A, B } = this.buildSystem(images, exposureTimes, points, this.lambda);
 
-          // Solve for this channel and apply exp step
-          const response = this.solveSystem(A, B);
+      // Solve for this channel and apply exp step
+      // const response = this.solveSystem(A, B);
 
-          // Store the linear response curve for the channel
-          responseCurves.push(response.slice(0, 256)); // Take only the first 256 values (LDR_SIZE)
-      }
+      // Store the linear response curve for the channel
+      responseCurves.push(response.slice(0, 256)); // Take only the first 256 values (LDR_SIZE)
+
 
       return responseCurves;
 
@@ -134,42 +134,69 @@ class CalibrateDebevec {
    }
 
    // Build the system of equations for one channel
-   buildSystem(images, exposureTimes, points, channel, lambda) {
+   buildSystem(images, exposureTimes, points, lambda) {
       const LDR_SIZE = 256;
       const n = points.length * images.length + LDR_SIZE + 1;
-      let A = math.zeros([n, LDR_SIZE + points.length]);
-      let B = math.zeros([n, 1]);
 
-      let k = 0;
-      for (let i = 0; i < points.length; i++) {
-         for (let j = 0; j < images.length; j++) {
-            const [x, y] = points[j][i].getPosition();
-            const val = images[j].getAt(x, y)[channel]; // Access the channel value
-            const weight = this.triangleWeights(val);
+      // results = [];
 
-            A.set([k, val], weight);
-            A.set([k, LDR_SIZE + i], -weight);
-            B.set([k, 0], weight * Math.log(exposureTimes[j]));
+      console.log('hi #1');
+
+      for (let channel = 0; channel < CHANNELS; channel++) {
+         let A = math.zeros([n, LDR_SIZE + points.length]);
+         let B = math.zeros([n, 1]);
+
+         let k = 0;
+         for (let i = 0; i < points.length; i++) {
+            for (let j = 0; j < images.length; j++) {
+               const [x, y] = points[j][i].getPosition();
+               const val = images[j].getAt(x, y)[channel]; // Access the channel value
+               const weight = this.triangleWeights(val);
+
+               A = math.subset(A, math.index(k, val), weight);
+               A = math.subset(A, math.index(k, LDR_SIZE + i), -weight);
+               B = math.subset(B, math.index(k, 0), weight * Math.log(exposureTimes[j]));
+               k++;
+            }
+         }
+
+         console.log('hi #2');
+
+         // fix the curve by setting its middle value to 0
+         // A[k, LDR_SIZE / 2] = 1;
+         A = math.subset(A, math.index(k, LDR_SIZE / 2), 1);
+         k++;
+
+         console.log('hi #3');
+
+         // Smoothness equations
+         for (let i = 0; i < LDR_SIZE - 2; i++) {
+            const weight = this.triangleWeights(i + 1);
+            // console.log('hi #31');
+            A = math.subset(A, math.index(k, i), lambda * weight);
+            // console.log('hi #32');
+            A = math.subset(A, math.index(k, i + 1), -2 * lambda * weight);
+            // console.log('hi #33');
+            A = math.subset(A, math.index(k, i + 2), lambda * weight);
             k++;
          }
+
+         A = math.subset(A, math.index(math.range(0, 259), math.range(0, 259)));
+         B = math.subset(B, math.index(math.range(0, 259), 0));
+
+
+         console.log('hi #4');
+
+         console.log(A);
+         console.log(B);
+
+         console.log(
+            this.solveSystem(A, B)
+         );
+
       }
 
-      // Smoothness equations
-      for (let i = 0; i < LDR_SIZE - 2; i++) {
-         const weight = this.triangleWeights(i + 1);
-         A.set([k, i], lambda * weight);
-         A.set([k, i + 1], -2 * lambda * weight);
-         A.set([k, i + 2], lambda * weight);
-         k++;
-      }
-
-      console.log(A);
-      console.log(B);
-
-      return {
-         A,
-         B
-      };
+      // return { A, B };
    }
 
    // Solve the system and apply exp() step
@@ -177,9 +204,10 @@ class CalibrateDebevec {
       const logResponse = math.lusolve(A, B);
       // Apply exp to get the linear response
       const response = logResponse.map(value => Math.exp(value[0]));
+      console.log(response);
       return response;
    }
-   
+
 }
 
 
