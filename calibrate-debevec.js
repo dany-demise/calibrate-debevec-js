@@ -40,38 +40,12 @@ class CalibrateDebevec {
     * @param {boolean} [random=false] - Whether to use random sampling.
     */
    constructor(samples = 70, lambda = 10.0, random = true) {
-      /** @type {number} */
       this.samples = samples;
-      /** @type {number} */
       this.lambda = lambda;
-      /** @type {boolean} */
       this.random = random;
    }
 
-   /**
-    * Set the number of samples.
-    * @param {number} samples - The new number of samples.
-    */
-   setSamples(samples) {
-      this.samples = samples;
-   }
-
-   /**
-    * Set the lambda (regularization) value.
-    * @param {number} lambda - The new lambda value.
-    */
-   setLambda(lambda) {
-      this.lambda = lambda;
-   }
-
-   /**
-    * Set whether random sampling is used.
-    * @param {boolean} random - True to use random sampling, false otherwise.
-    */
-   setRandom(random) {
-      this.random = random;
-   }
-
+   
    /**
     * Calibrate the images using the Debevec method.
     * @param {Array<Array<ImageRGB>>} images - The array of images to calibrate, .
