@@ -10,7 +10,7 @@
 
 </head>
 <body>
-    <h1>Linear Algebra JS Example</h1>
+    <h1>Debevec camera response function retrieval</h1>
 
     <!-- Input element to select multiple JPEG files -->
     <input type="file" id="imageInput" accept="image/jpeg" multiple>
@@ -77,7 +77,7 @@
 
                 // Now, all images are in the array, and we can proceed
                 let c = new CalibrateDebevec();
-                r = c.process(images, exposureTimes);
+                let r = c.process(images, exposureTimes);
                 console.log(r);
                 pToDiv(r, 'matrixContainer');
             });

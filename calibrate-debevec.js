@@ -39,7 +39,7 @@ class CalibrateDebevec {
     * @param {number} [lambda=10.0] - The regularization parameter.
     * @param {boolean} [random=false] - Whether to use random sampling.
     */
-   constructor(samples = 70, lambda = 10.0, random = true) {
+   constructor(samples = 500, lambda = 10.0, random = true) {
       this.samples = samples;
       this.lambda = lambda;
       this.random = random;
@@ -84,18 +84,10 @@ class CalibrateDebevec {
       console.log(points);
 
       // Process each channel separately
-      let responseCurves = this.getResponseCurves(images, exposureTimes, points, this.lambda);
+      let responseCurvesResult = this.getResponseCurves(images, exposureTimes, points, this.lambda);
 
-      // Solve for this channel and apply exp step
-      // const response = this.solveSystem(A, B);
+      return responseCurvesResult;
 
-      // Store the linear response curve for the channel
-      // responseCurves.push(response.slice(0, 256)); // Take only the first 256 values (LDR_SIZE)
-
-
-      return responseCurves;
-
-      // return responseCurve;
    }
 
    triangleWeights(value) {
