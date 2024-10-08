@@ -7,6 +7,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/13.1.1/math.min.js"></script>
     <script src="svd.js"></script>
     <script src="calibrate-debevec.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exif-js/2.3.0/exif.min.js"></script>
+
 
 </head>
 <body>
@@ -36,10 +38,49 @@
     }
 }
 
+function getExposureTime(imageFile) {
+    return new Promise((resolve, reject) => {
+        if (!imageFile || !imageFile.type.startsWith("image/")) {
+            reject("File is not an image.");
+            return;
+        }
+
+        // Read EXIF data from the image file
+        EXIF.getData(imageFile, function () {
+            const exposureTime = EXIF.getTag(this, "ExposureTime");
+            
+            if (exposureTime) {
+                // Convert exposure time to a float if it's in fractional format
+                if (typeof exposureTime === "string" && exposureTime.includes("/")) {
+                    const [numerator, denominator] = exposureTime.split("/").map(Number);
+                    resolve(numerator / denominator);
+                } else {
+                    resolve(parseFloat(exposureTime));
+                }
+            } else {
+                reject("Exposure time not found.");
+            }
+        });
+    });
+}
+
+
+async function getExposureTimes(files) {
+    const promises = files.map(getExposureTime);
+    
+    return await Promise.all(promises)
+        .then((exposureTimes) => {
+            console.log("Exposure Times:", exposureTimes);
+            return exposureTimes;
+        })
+        .catch((error) => {
+            console.error("Error retrieving exposure times:", error);
+        });
+}
         
         // Event listener for file input changes
         document.getElementById('imageInput').addEventListener('change', function(event) {
-            const files = event.target.files;
+            const files = Array.from(event.target.files);
 
             // Clear previous matrices
             const container = document.getElementById('matrixContainer');
@@ -54,26 +95,30 @@
                 imagesPromises.push(fileObjectToImageRgb(file));
             }
 
-            Promise.all(imagesPromises).then(imageRgbArray => {
+            getExposureTimes(files);
+
+            Promise.all(imagesPromises).then(async imageRgbArray => {
                 // Push each processed image into the images array
+                let exposureTimes = await getExposureTimes(files);
+
                 imageRgbArray.forEach(imageRgb => {
                     console.log(imageRgb.array.length);
                     images.push(imageRgb);
                 });
 
-                const exposureTimes = [
-                    0.00015625, // 1 / 6400
-                    0.0005,     // 1 / 2000
-                    0.0015625,  // 1 / 640
-                    0.003125,   // 1 / 320
-                    0.008,      // 1 / 125
-                    0.04,       // 1 / 25
-                    0.2,        // 1 / 5
-                    0.4,        // 1 / 2.5
-                    1.0,
-                    2.0,
-                    5.0
-                ];
+                // const exposureTimes = [
+                //     0.00015625, // 1 / 6400
+                //     0.0005,     // 1 / 2000
+                //     0.0015625,  // 1 / 640
+                //     0.003125,   // 1 / 320
+                //     0.008,      // 1 / 125
+                //     0.04,       // 1 / 25
+                //     0.2,        // 1 / 5
+                //     0.4,        // 1 / 2.5
+                //     1.0,
+                //     2.0,
+                //     5.0
+                // ];
 
                 // Now, all images are in the array, and we can proceed
                 let c = new CalibrateDebevec();
