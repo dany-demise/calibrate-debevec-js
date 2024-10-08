@@ -39,7 +39,7 @@ class CalibrateDebevec {
     * @param {number} [lambda=10.0] - The regularization parameter.
     * @param {boolean} [random=false] - Whether to use random sampling.
     */
-   constructor(samples = 70, lambda = 10.0, random = true) {
+   constructor(samples = 500, lambda = 10.0, random = true) {
       this.samples = samples;
       this.lambda = lambda;
       this.random = random;
@@ -155,8 +155,8 @@ class CalibrateDebevec {
             k++;
          }
 
-         A = math.subset(A, math.index(math.range(0, 259), math.range(0, 259)));
-         B = math.subset(B, math.index(math.range(0, 259), 0));
+         //A = math.subset(A, math.index(math.range(0, 259), math.range(0, 259)));
+         //B = math.subset(B, math.index(math.range(0, 259), 0));
 
 
          console.log('hi #4');
@@ -165,8 +165,33 @@ class CalibrateDebevec {
          console.log(B);
 
          console.log(
-            this.solveSystem(A, B)
+            // this.solveSystem(A, B)
+
+            //SVD(A)
          );
+
+         // Perform Singular Value Decomposition on A
+         const svd = SVD(A);
+
+         // Extract U, S, and V matrices
+         const U = svd.u;       // Left singular vectors (m x m)
+         const S = svd.q;       // Singular values (array of length n)
+         const V = svd.v;       // Right singular vectors (n x n)
+
+         // Construct the diagonal matrix of singular values S
+         const S_matrix = math.diag(svd.q);
+
+         // Compute the pseudoinverse of S
+         const S_inv = math.diag(svd.q.map(s => s > 1e-10 ? 1 / s : 0));
+
+         // Compute the pseudoinverse of A: A_pinv = V * S_inv * U^T
+         const V_S_inv = math.multiply(V, S_inv);
+         const A_pinv = math.multiply(V_S_inv, math.transpose(U));
+
+         // Solve for x: x = A_pinv * B
+         const x = math.multiply(A_pinv, B);
+
+         console.log('Solution x:', x);
 
       }
 
