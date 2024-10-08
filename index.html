@@ -1,135 +1,136 @@
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Linear Algebra JS Example</title>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/13.1.1/math.min.js"></script>
+
     <script src="svd.js"></script>
+
     <script src="calibrate-debevec.js"></script>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/exif-js/2.3.0/exif.min.js"></script>
 
-
 </head>
+
 <body>
+
     <h1>Debevec camera response function retrieval</h1>
 
     <!-- Input element to select multiple JPEG files -->
+
     <input type="file" id="imageInput" accept="image/jpeg" multiple>
 
     <!-- Container to display matrices -->
+
     <div id="matrixContainer"></div>
 
     <script type="module">
-
         function pToDiv(arrayOfArrays, divId) {
-    const div = document.getElementById(divId);
-    if (div && Array.isArray(arrayOfArrays)) {
-        div.innerHTML = ""; // Clear existing content
-        arrayOfArrays.forEach(subArray => {
-            if (Array.isArray(subArray)) {
-                const p = document.createElement("p");
-                p.textContent = subArray.join(", "); // Join sub-array elements with commas
-                div.appendChild(p);
+            const div = document.getElementById(divId);
+            if (div && Array.isArray(arrayOfArrays)) {
+                div.innerHTML = ""; // Clear existing content
+                arrayOfArrays.forEach(subArray => {
+                    if (Array.isArray(subArray)) {
+                        const p = document.createElement("p");
+                        p.textContent = subArray.join(", "); // Join sub-array elements with commas
+                        div.appendChild(p);
+                    }
+                });
+            } else {
+                console.error("Invalid div ID or array format");
             }
-        });
-    } else {
-        console.error("Invalid div ID or array format");
-    }
-}
-
-function getExposureTime(imageFile) {
-    return new Promise((resolve, reject) => {
-        if (!imageFile || !imageFile.type.startsWith("image/")) {
-            reject("File is not an image.");
-            return;
         }
 
-        // Read EXIF data from the image file
-        EXIF.getData(imageFile, function () {
-            const exposureTime = EXIF.getTag(this, "ExposureTime");
-            
-            if (exposureTime) {
-                // Convert exposure time to a float if it's in fractional format
-                if (typeof exposureTime === "string" && exposureTime.includes("/")) {
-                    const [numerator, denominator] = exposureTime.split("/").map(Number);
-                    resolve(numerator / denominator);
-                } else {
-                    resolve(parseFloat(exposureTime));
+        function getExposureTime(imageFile) {
+            return new Promise((resolve, reject) => {
+                if (!imageFile || !imageFile.type.startsWith("image/")) {
+                    reject("File is not an image.");
+                    return;
                 }
-            } else {
-                reject("Exposure time not found.");
-            }
-        });
-    });
-}
-
-
-async function getExposureTimes(files) {
-    const promises = files.map(getExposureTime);
-    
-    return await Promise.all(promises)
-        .then((exposureTimes) => {
-            console.log("Exposure Times:", exposureTimes);
-            return exposureTimes;
-        })
-        .catch((error) => {
-            console.error("Error retrieving exposure times:", error);
-        });
-}
-        
-        // Event listener for file input changes
-        document.getElementById('imageInput').addEventListener('change', function(event) {
-            const files = Array.from(event.target.files);
-
-            // Clear previous matrices
-            const container = document.getElementById('matrixContainer');
-            container.innerHTML = '';
-
-            const imagesPromises = [];
-            const images = [];
-
-            // Iterate over selected files
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                imagesPromises.push(fileObjectToImageRgb(file));
-            }
-
-            getExposureTimes(files);
-
-            Promise.all(imagesPromises).then(async imageRgbArray => {
-                // Push each processed image into the images array
-                let exposureTimes = await getExposureTimes(files);
-
-                imageRgbArray.forEach(imageRgb => {
-                    console.log(imageRgb.array.length);
-                    images.push(imageRgb);
+                // Read EXIF data from the image file
+                EXIF.getData(imageFile, function() {
+                    const exposureTime = EXIF.getTag(this, "ExposureTime");
+                    if (exposureTime) {
+                        // Convert exposure time to a float if it's in fractional format
+                        if (typeof exposureTime === "string" && exposureTime.includes("/")) {
+                            const [numerator, denominator] = exposureTime.split("/")
+                                .map(Number);
+                            resolve(numerator / denominator);
+                        } else {
+                            resolve(parseFloat(exposureTime));
+                        }
+                    } else {
+                        reject("Exposure time not found.");
+                    }
                 });
-
-                // const exposureTimes = [
-                //     0.00015625, // 1 / 6400
-                //     0.0005,     // 1 / 2000
-                //     0.0015625,  // 1 / 640
-                //     0.003125,   // 1 / 320
-                //     0.008,      // 1 / 125
-                //     0.04,       // 1 / 25
-                //     0.2,        // 1 / 5
-                //     0.4,        // 1 / 2.5
-                //     1.0,
-                //     2.0,
-                //     5.0
-                // ];
-
-                // Now, all images are in the array, and we can proceed
-                let c = new CalibrateDebevec();
-                let r = c.process(images, exposureTimes);
-                console.log(r);
-                pToDiv(r, 'matrixContainer');
             });
-
-            // let c = new CalibrateDebevec();
-            // c.process(images, []);
-        });
+        }
+        async function getExposureTimes(files) {
+            const promises = files.map(getExposureTime);
+            return await Promise.all(promises)
+                .then((exposureTimes) => {
+                    console.log("Exposure Times:", exposureTimes);
+                    return exposureTimes;
+                })
+                .catch((error) => {
+                    console.error("Error retrieving exposure times:", error);
+                });
+        }
+        // Event listener for file input changes
+        document.getElementById('imageInput')
+            .addEventListener('change', function(event) {
+                const files = Array.from(event.target.files);
+                // Clear previous matrices
+                const container = document.getElementById('matrixContainer');
+                container.innerHTML = '';
+                const imagesPromises = [];
+                const exposureTimesPromises = getExposureTimes(files);
+                const images = [];
+                // Iterate over selected files
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    imagesPromises.push(fileObjectToImageRgb(file));
+                }
+                Promise.all(imagesPromises)
+                    .then(async imageRgbArray => {
+                        // Push each processed image into the images array
+                        let exposureTimes = await exposureTimesPromises;
+                        imageRgbArray.forEach(imageRgb => {
+                            console.log(imageRgb.array.length);
+                            images.push(imageRgb);
+                        });
+                        // const exposureTimes = [
+                        //     0.00015625, // 1 / 6400
+                        //     0.0005,     // 1 / 2000
+                        //     0.0015625,  // 1 / 640
+                        //     0.003125,   // 1 / 320
+                        //     0.008,      // 1 / 125
+                        //     0.04,       // 1 / 25
+                        //     0.2,        // 1 / 5
+                        //     0.4,        // 1 / 2.5
+                        //     1.0,
+                        //     2.0,
+                        //     5.0
+                        // ];
+                        // Now, all images are in the array, and we can proceed
+                        let c = new CalibrateDebevec();
+                        let r = c.process(images, exposureTimes);
+                        console.log(r);
+                        pToDiv(r, 'matrixContainer');
+                    });
+                // let c = new CalibrateDebevec();
+                // c.process(images, []);
+            });
     </script>
+
 </body>
+
 </html>
