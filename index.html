@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Linear Algebra JS Example</title>
+    <title>Debevec camera response function retrieval</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/13.1.1/math.min.js"></script>
     <script src="svd.js"></script>
     <script src="calibrate-debevec.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/exif-js/2.3.0/exif.min.js"></script>
 </head>
 
@@ -15,7 +16,10 @@
     <!-- Input element to select multiple JPEG files -->
     <input type="file" id="imageInput" accept="image/jpeg" multiple>
     <!-- Container to display matrices -->
-    <div id="matrixContainer"></div>
+    <div id="" style="width: 100%; height: 300px;">
+        <canvas id="rgbChart"></canvas>
+    </div>
+    <div id="matrixContainer"></div>    
     <script type="module">
         function pToDiv(arrayOfArrays, divId) {
             const div = document.getElementById(divId);
@@ -68,6 +72,87 @@
                     console.error("Error retrieving exposure times:", error);
                 });
         }
+
+        function drawRGBChart(divId, rgbArray) {
+            const ctx = document.getElementById(divId).getContext('2d');
+            
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: Array.from({ length: rgbArray[0].length }, (_, i) => i + 1),
+                    datasets: [
+                        {
+                            label: 'Red',
+                            data: rgbArray[0],
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.3
+                        },
+                        {
+                            label: 'Green',
+                            data: rgbArray[1],
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.3
+                        },
+                        {
+                            label: 'Blue',
+                            data: rgbArray[2],
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                font: {
+                                    size: 14
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ${context.raw.toFixed(2)}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Index',
+                                font: {
+                                    size: 14
+                                }
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'RGB Intensity',
+                                font: {
+                                    size: 14
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
         // Event listener for file input changes
         document.getElementById('imageInput')
             .addEventListener('change', function(event) {
@@ -109,9 +194,10 @@
                         let r = c.process(images, exposureTimes);
                         console.log(r);
                         pToDiv(r, 'matrixContainer');
+                        // Usage: pass in the div ID and RGB array to render the chart
+                        drawRGBChart('rgbChart', r);
                     });
-                // let c = new CalibrateDebevec();
-                // c.process(images, []);
+
             });
     </script>
 </body>
