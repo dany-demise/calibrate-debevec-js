@@ -1,37 +1,21 @@
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Linear Algebra JS Example</title>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/13.1.1/math.min.js"></script>
-
     <script src="svd.js"></script>
-
     <script src="calibrate-debevec.js"></script>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/exif-js/2.3.0/exif.min.js"></script>
-
 </head>
 
 <body>
-
     <h1>Debevec camera response function retrieval</h1>
-
     <!-- Input element to select multiple JPEG files -->
-
     <input type="file" id="imageInput" accept="image/jpeg" multiple>
-
     <!-- Container to display matrices -->
-
     <div id="matrixContainer"></div>
-
     <script type="module">
         function pToDiv(arrayOfArrays, divId) {
             const div = document.getElementById(divId);
@@ -130,7 +114,5 @@
                 // c.process(images, []);
             });
     </script>
-
 </body>
-
 </html>
