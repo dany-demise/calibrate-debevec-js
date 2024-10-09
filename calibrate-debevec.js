@@ -64,18 +64,12 @@ class CalibrateDebevec {
       for (let i = 0; i < this.samples; i++) {
          const x = Math.floor(Math.random() * width);
          const y = Math.floor(Math.random() * height);
-         pointsCoordinates.push({
-            x,
-            y
-         });
+         pointsCoordinates.push({ x, y });
       }
 
       // Generate points for each image using the same random coordinates
       const points = images.map(image => {
-         return pointsCoordinates.map(({
-            x,
-            y
-         }) => {
+         return pointsCoordinates.map(({ x, y }) => {
             const RGB = image.getAt(x, y);
             return new PointRGB(RGB, x, y);
          });
@@ -98,7 +92,6 @@ class CalibrateDebevec {
 
    // Build the system of equations for one channel
    getResponseCurves(images, exposureTimes, points, lambda) {
-      const LDR_SIZE = 256;
       const n = points.length * images.length + LDR_SIZE + 1;
 
       let responseCurves = [] // Should be 3 array of 256 vlues at the end
@@ -152,18 +145,14 @@ class CalibrateDebevec {
          const logResponseCurve = math.multiply(A_pinv, B);
          let responseCurve = logResponseCurve.map(value => Math.exp(value[0]));
          console.log('Solution x:', responseCurve.slice(0, LDR_SIZE));
-         
          responseCurves.push(responseCurve.slice(0, LDR_SIZE));
-
       }
-
       return responseCurves;
    }
-
 }
 
 
-// Function to convert File object to RGB matrices
+// Function to convert DOM File object to ImageRGB object
 async function fileObjectToImageRgb(file) {
    return new Promise((resolve, reject) => {
       const img = new Image();
