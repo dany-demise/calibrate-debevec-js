@@ -39,7 +39,7 @@ class CalibrateDebevec {
     * @param {number} [lambda=10.0] - The regularization parameter.
     * @param {boolean} [random=false] - Whether to use random sampling.
     */
-   constructor(samples = 1000, lambda = 10.0, random = true) {
+   constructor(samples = 1000, lambda = 10.0, random = false) {
       this.samples = samples;
       this.lambda = lambda;
       this.random = random;
@@ -61,10 +61,29 @@ class CalibrateDebevec {
       const width = images[0].width;
       const height = images[0].height;
 
+      if (this.random) {
       for (let i = 0; i < this.samples; i++) {
          const x = Math.floor(Math.random() * width);
          const y = Math.floor(Math.random() * height);
          pointsCoordinates.push({ x, y });
+      }
+      }
+      else {
+          let samples = this.samples;
+          let cols = width;
+          let rows = height;
+          let xPoints = Math.floor(Math.sqrt(samples * cols / rows));
+          let yPoints = Math.floor(samples / xPoints);
+          let stepX = Math.floor(cols / xPoints);
+          let stepY = Math.floor(rows / yPoints);
+
+          for (let i = 0, x = Math.floor(stepX / 2); i < xPoints; i++, x += stepX) {
+             for (let j = 0, y = Math.floor(stepY / 2); j < yPoints; j++, y += stepY) {
+                 if (x >= 0 && x < cols && y >= 0 && y < rows) {
+                     pointsCoordinates.push({ x, y });
+                  }
+              }
+        }
       }
 
       // Generate points for each image using the same random coordinates
