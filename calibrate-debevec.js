@@ -19,7 +19,7 @@ class ImageRGB {
 
 class PointRGB {
    constructor(RGB, x, y) {
-      this.RGB = RGB
+      this.RGB = RGB // such that is an Array on integers [128, 128, 128]
       this.x = x;
       this.y = y;
    }
