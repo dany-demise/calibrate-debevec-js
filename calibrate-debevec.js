@@ -23,7 +23,7 @@ class PointRGB {
       this.x = x;
       this.y = y;
    }
-   // Method to get the position of the point
+   // Method to get the psition of the point
    getPosition() {
       return [ this.x, this.y ];
    }
