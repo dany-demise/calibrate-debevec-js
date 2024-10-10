@@ -39,7 +39,7 @@ class CalibrateDebevec {
     * @param {number} [lambda=10.0] - The regularization parameter.
     * @param {boolean} [random=false] - Whether to use random sampling.
     */
-   constructor(samples = 1000, lambda = 10.0, random = false) {
+   constructor(samples = 500, lambda = 10.0, random = true) {
       this.samples = samples;
       this.lambda = lambda;
       this.random = random;
@@ -147,12 +147,19 @@ class CalibrateDebevec {
          }
 
          // Perform Singular Value Decomposition on A
-         const svd = SVD(A);
+         //const svd = SVD(A);
 
          // Extract U, S, and V matrices
-         const U = svd.u;       // Left singular vectors (m x m)
-         const S = svd.q;       // Singular values (array of length n)
-         const V = svd.v;       // Right singular vectors (n x n)
+         //const U = svd.u;       // Left singular vectors (m x m)
+         //const S = svd.q;       // Singular values (array of length n)
+         //const V = svd.v;       // Right singular vectors (n x n)
+         const { Matrix, SVD } = mlMatrix;
+         const svd = new SVD(new Matrix(A));
+
+         // Access U, S, and V matrices
+         const U = svd.leftSingularVectors.to2DArray();
+         const S = svd.diagonal; // .to2DArray();
+         const V = svd.rightSingularVectors.to2DArray();
 
          // Compute the pseudoinverse of S
          const S_inv = math.diag(S.map(s => s > 1e-10 ? 1 / s : 0));
