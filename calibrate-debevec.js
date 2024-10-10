@@ -39,7 +39,7 @@ class CalibrateDebevec {
     * @param {number} [lambda=10.0] - The regularization parameter.
     * @param {boolean} [random=false] - Whether to use random sampling.
     */
-   constructor(samples = 500, lambda = 10.0, random = true) {
+   constructor(samples = 70, lambda = 10.0, random = false) {
       this.samples = samples;
       this.lambda = lambda;
       this.random = random;
