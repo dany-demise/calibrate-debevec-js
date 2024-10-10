@@ -106,7 +106,8 @@ class CalibrateDebevec {
    triangleWeights(value) {
       // Custom weight function for each intensity level (0 to 255)
       // Example weight: a triangular weighting centered around 128
-      return Math.max(0, 1 - Math.abs((value - 128) / 128));
+      // return Math.max(0, 1 - Math.abs((value - 128) / 128));
+      return 1.0 / 256.0;
    }
 
    // Build the system of equations for one channel
