@@ -190,7 +190,7 @@
                 Promise.all(imagesPromises)
                     .then(async imageRgbArray => {
                         let exposureTimes = await exposureTimesPromises;
-                        pToDiv(exposureTimes, 'exposures')
+                        pToDiv(exposureTimes.map(value => {[value]}), 'exposures');
                         imageRgbArray.forEach(imageRgb => {
                             images.push(imageRgb);
                         });
