@@ -34,7 +34,7 @@ class PointRGB {
 
 class CalibrateDebevec {
    /**
-    * Creates an instance of CalibrateDebevec.
+    * Creates n instance of CalibrateDebevec.
     * @param {number} [samples=70] - The number of samples to use.
     * @param {number} [lambda=20.0] - The regularization parameter.
     * @param {boolean} [random=false] - Whether to use random sampling.
