@@ -39,7 +39,7 @@ class CalibrateDebevec {
     * @param {number} [lambda=20.0] - The regularization parameter.
     * @param {boolean} [random=false] - Whether to use random sampling.
     */
-   constructor(samples = 70, lambda = 20.0, random = false) {
+   constructor(samples = 70, lambda = 10.0, random = false) {
       this.samples = samples;
       this.lambda = lambda;
       this.random = random;
@@ -134,7 +134,7 @@ class CalibrateDebevec {
             }
          }
          // fix the curve by setting its middle value to 0
-         A = math.subset(A, math.index(k, LDR_SIZE / 2), 1);
+         A = math.subset(A, math.index(k, LDR_SIZE / 2), 1.0);
          k++;
 
          // Smoothness equations
