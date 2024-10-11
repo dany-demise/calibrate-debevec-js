@@ -153,8 +153,8 @@ class CalibrateDebevec {
          //const U = svd.u;       // Left singular vectors (m x m)
          //const S = svd.q;       // Singular values (array of length n)
          //const V = svd.v;       // Right singular vectors (n x n)
-         const { Matrix, SVD } = mlMatrix;
-         const svd = new SVD(new Matrix(A));
+         const { Matrix, SVD, QR } = mlMatrix;
+         const svd = new QR(new Matrix(A));
 
          // Access U, S, and V matrices
          // const U = svd.leftSingularVectors.to2DArray();
