@@ -157,19 +157,19 @@ class CalibrateDebevec {
          const svd = new SVD(new Matrix(A));
 
          // Access U, S, and V matrices
-         const U = svd.leftSingularVectors.to2DArray();
-         const S = svd.diagonal; // .to2DArray();
-         const V = svd.rightSingularVectors.to2DArray();
+         // const U = svd.leftSingularVectors.to2DArray();
+         // const S = svd.diagonal; // .to2DArray();
+         // const V = svd.rightSingularVectors.to2DArray();
 
          // Compute the pseudoinverse of S
-         const S_inv = math.diag(S.map(s => s > 1e-10 ? 1.0 / s : 0.0));
+         // const S_inv = math.diag(S.map(s => s > 1e-10 ? 1.0 / s : 0.0));
 
          // Compute the pseudoinverse of A: A_pinv = V * S_inv * U^T
-         const V_S_inv = math.multiply(V, S_inv);
-         const A_pinv = math.multiply(V_S_inv, math.transpose(U));
+         // const V_S_inv = math.multiply(V, S_inv);
+         // const A_pinv = math.multiply(V_S_inv, math.transpose(U));
 
          // Solve for x: x = A_pinv * B
-         const logResponseCurve = math.multiply(A_pinv, B);
+         const logResponseCurve = svd.solve(B).to2DArray(); // math.multiply(A_pinv, B);
          let responseCurve = logResponseCurve.map(value => Math.exp(value[0]));
          console.log('Solution x:', responseCurve.slice(0, LDR_SIZE));
          responseCurves.push(responseCurve.slice(0, LDR_SIZE));
