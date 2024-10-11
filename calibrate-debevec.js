@@ -106,7 +106,7 @@ class CalibrateDebevec {
    triangleWeights(value) {
       // Custom weight function for each intensity level (0 to 255)
       // Example weight: a triangular weighting centered around 128
-      return Math.max(0, 1 - Math.abs((value - 128) / 128));
+      return 1.0 * Math.max(0, 1 - Math.abs((value - 128) / 128));
       // return 1.0 / 256.0;
    }
 
@@ -124,7 +124,7 @@ class CalibrateDebevec {
          for (let i = 0; i < points.length; i++) {
             for (let j = 0; j < images.length; j++) {
                const [x, y] = points[j][i].getPosition();
-               const val = images[j].getAt(x, y)[channel]; // Access the channel value
+               const val = 1.0 * images[j].getAt(x, y)[channel]; // Access the channel value
                const weight = this.triangleWeights(val);
 
                A = math.subset(A, math.index(k, val), weight);
@@ -162,7 +162,7 @@ class CalibrateDebevec {
          const V = svd.rightSingularVectors.to2DArray();
 
          // Compute the pseudoinverse of S
-         const S_inv = math.diag(S.map(s => s > 1e-10 ? 1 / s : 0));
+         const S_inv = math.diag(S.map(s => s > 1e-10 ? 1.0 / s : 0.0));
 
          // Compute the pseudoinverse of A: A_pinv = V * S_inv * U^T
          const V_S_inv = math.multiply(V, S_inv);
