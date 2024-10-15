@@ -34,29 +34,33 @@ class PointRGB {
 
 class PolynomialResponseFunction {
    // Models the function as a 5 deg. polynomial
-   constructor(a,b,c,d,e,f) {
+   constructor([a,b,c,d,e,f]) {
       this.expStr = `${a}*x^5+${b}*x^4+${c}*x^3+${d}*x^2+${e}*x+${f}`;
+      console.log(this.expStr);
       this.evalOne = math.compile(this.expStr).evaluate;
-      this.derivEvalOne = math.derivative(this.expStr).evaluate;
+      // this.derivEvalOne = math.derivative(this.expStr).evaluate;
       this.coeffs = [a,b,c,d,e,f];
    }
 
    eval(X) {
+      console.log(X);
       return X.map(this.evalOne);
    }
 
-   derivEval(X) {
-      return X.map(this.derivEvalOne);
-   }
+   // derivEval(X) {
+   //    return X.map(this.derivEvalOne);
+   // }
    
    lossGradients(Y_real) {
+      console.log(Y_real);
       let lossGradientsValues = [];
-      for (const exponent in coeffs) {
+      for (const exponent in this.coeffs) {
           let coeff = this.coeffs[exponent];
           let N = this.coeffs.length;
           let lossGradient = 0.0;
           for (const i in Y_real) {
-             lossGradient += Y_real - this.eval([i])[0] * i ** exponent;
+             console.log(i);
+             lossGradient += Y_real[i] - this.evalOne(i) * i ** exponent;
           }
           lossGradient = -2 / N * lossGradients;
           lossGradientsValues.push(lossGradient);
@@ -189,8 +193,9 @@ class CalibrateDebevec {
          for (let epoch = 0; epoch < 1000; epoch++) {
             let new_coeffs = math.substract(
                logResponseCurvePolynomial.coeffs,
-               math.multiply(delta, logResponseCurvePolynomial.lossGradients(B.to2DArray()))
+               math.multiply(delta, logResponseCurvePolynomial.lossGradients(B))
             ).to2DArray();
+            console.log(new_coeffs);
             logResponseCurvePolynomial = new PolynomialResponseFunction(new_coeffs);
          }
          let range = Array.from({ length: B.to2DArray().length }, (_, i) => i);
