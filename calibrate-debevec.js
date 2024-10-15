@@ -32,6 +32,11 @@ class PointRGB {
    }
 }
 
+class PolynomialResponseFunction {
+   // Models the function as a 5 deg. polynomial
+   
+}
+
 class CalibrateDebevec {
    /**
     * Creates n instance of CalibrateDebevec.
