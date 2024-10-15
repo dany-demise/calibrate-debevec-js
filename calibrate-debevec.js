@@ -62,7 +62,7 @@ class PolynomialResponseFunction {
              console.log(i);
              lossGradient += Y_real[i] - this.evalOne({x:i}) * i ** exponent;
           }
-          lossGradient = -2 / N * lossGradients;
+          lossGradient = -2 / N * lossGradient;
           lossGradientsValues.push(lossGradient);
       }
    }
