@@ -65,6 +65,7 @@ class PolynomialResponseFunction {
           lossGradient = -2 / N * lossGradient;
           lossGradientsValues.push(lossGradient);
       }
+      return lossGradientsValues;
    }
    
 }
