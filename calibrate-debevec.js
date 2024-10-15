@@ -183,7 +183,18 @@ class CalibrateDebevec {
          // const { Matrix, SVD, QR } = mlMatrix;
          // const svd = new SVD(new Matrix(A));
 
-         // const logResponseCurve = 
+         // const logResponseCurve = solve....
+         let logResponseCurvePolynomial = new PolynomialResponseFunction([1.0, 1.0, 1.0, 1.0, 1.0, 0.0]);
+         let delta = 0.01;
+         for (let epoch = 0; epoch < 1000; epoch++) {
+            let new_coeffs = math.substract(
+               logResponseCurvePolynomial.coeffs,
+               delta * logResponseCurvePolynomial.lossGradients(B.to2DArray);
+            );
+            logResponseCurvePolynomial = new PolynomialResponseFunction(new_coeffs);
+         }
+         let range = Array.from({ length: B.to2DArray().length }, (_, i) => i);
+         let logResponseCurve = range.map(logResponseCurvePolynomial.eval);
          let responseCurve = logResponseCurve.map(value => Math.exp(value[0]));
          console.log('Solution x:', responseCurve.slice(0, LDR_SIZE));
          responseCurves.push(responseCurve.slice(0, LDR_SIZE));
