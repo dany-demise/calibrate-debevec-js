@@ -198,7 +198,7 @@ class CalibrateDebevec {
                   delta, 
                   math.matrix(logResponseCurvePolynomial.lossGradients(B))
                )
-            );
+            ).toArray();
             console.log(new_coeffs);
             logResponseCurvePolynomial = new PolynomialResponseFunction(new_coeffs);
          }
