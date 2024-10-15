@@ -189,7 +189,7 @@ class CalibrateDebevec {
          for (let epoch = 0; epoch < 1000; epoch++) {
             let new_coeffs = math.substract(
                logResponseCurvePolynomial.coeffs,
-               delta * logResponseCurvePolynomial.lossGradients(B.to2DArray);
+               delta * logResponseCurvePolynomial.lossGradients(B.to2DArray())
             );
             logResponseCurvePolynomial = new PolynomialResponseFunction(new_coeffs);
          }
