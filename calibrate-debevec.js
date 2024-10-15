@@ -38,6 +38,7 @@ class PolynomialResponseFunction {
       this.expStr = `${a}*x^5+${b}*x^4+${c}*x^3+${d}*x^2+${e}*x+${f}`;
       this.evalOne = math.compile(this.expStr).evaluate;
       this.derivEvalOne = math.derivative(this.expStr).evaluate;
+      this.coeffs = [a,b,c,d,e,f];
    }
 
    eval(X) {
@@ -47,6 +48,21 @@ class PolynomialResponseFunction {
    derivEval(X) {
       return X.map(this.derivEvalOne);
    }
+   
+   lossGradients(Y_real) {
+      let lossGradientsValues = [];
+      for (const exponent in coeffs) {
+          let coeff = this.coeffs[exponent];
+          let N = this.coeffs.length;
+          let lossGradient = 0.0;
+          for (const i in Y_real) {
+             lossGradient += Y_real - this.eval([i])[0] * i ** exponent;
+          }
+          lossGradient = -2 / N * lossGradients;
+          lossGradientsValues.push(lossGradient);
+      }
+   }
+   
 }
 
 class CalibrateDebevec {
@@ -164,10 +180,10 @@ class CalibrateDebevec {
          }
 
          // Right singular vectors (n x n)
-         const { Matrix, SVD, QR } = mlMatrix;
-         const svd = new SVD(new Matrix(A));
+         // const { Matrix, SVD, QR } = mlMatrix;
+         // const svd = new SVD(new Matrix(A));
 
-         const logResponseCurve = svd.solve(B).to2DArray(); // math.multiply(A_pinv, B);
+         // const logResponseCurve = 
          let responseCurve = logResponseCurve.map(value => Math.exp(value[0]));
          console.log('Solution x:', responseCurve.slice(0, LDR_SIZE));
          responseCurves.push(responseCurve.slice(0, LDR_SIZE));
