@@ -34,7 +34,10 @@ class PointRGB {
 
 class PolynomialResponseFunction {
    // Models the function as a 5 deg. polynomial
-   
+   constructor(a,b,c,d,e,f) {
+      let expStr = `${a}*x^5+${b}*x^4+${c}*x^3+${d}*x^2+${e}*x+${f}`;
+      this.f = math.compile(expStr);
+   }
 }
 
 class CalibrateDebevec {
