@@ -34,41 +34,57 @@ class PointRGB {
 
 class PolynomialResponseFunction {
    // Models the function as a 5 deg. polynomial
-   constructor([a,b,c,d,e,f]) {
-      this.expStr = `${a}*x^5+${b}*x^4+${c}*x^3+${d}*x^2+${e}*x+${f}`;
+   constructor([d,e,f]) {
+      this.expStr = `${d}*x^4+${e}*x^2+${f}`; // `${a}*x^10+${b}*x^8+${c}*x^6+${d}*x^4+${e}*x^2+${f}`;
       console.log(this.expStr);
       this.evalOne = math.compile(this.expStr).evaluate;
       // this.derivEvalOne = math.derivative(this.expStr).evaluate;
-      this.coeffs = [a,b,c,d,e,f];
+      this.coeffs = [d,e,f];
    }
 
-   eval(X) {
-      console.log(X);
-      return X.map(this.evalOne);
-   }
-
-   // derivEval(X) {
-   //    return X.map(this.derivEvalOne);
-   // }
-   
    lossGradients(Y_real) {
       console.log(Y_real);
       let lossGradientsValues = [];
       for (const exponent in this.coeffs) {
-          let coeff = this.coeffs[exponent];
-          let N = this.coeffs.length;
+          // let coeff = this.coeffs[exponent];
+          let N = Y_real.length;
           let lossGradient = 0.0;
           for (const i in Y_real) {
-             console.log(i);
-             lossGradient += Y_real[i] - this.evalOne({x:i}) * i ** exponent;
+             // console.log(i);
+             lossGradient += (Y_real[i] - this.evalOne({x:i})) * i ** exponent;
           }
           lossGradient = -2 / N * lossGradient;
           lossGradientsValues.push(lossGradient);
       }
+      console.log(lossGradientsValues);
       return lossGradientsValues;
    }
    
 }
+
+class GammaResponseFunction {
+   // Models the function as a 5 deg. polynomial
+   constructor(a) {
+      this.expStr = `x^${a}`; // `${a}*x^10+${b}*x^8+${c}*x^6+${d}*x^4+${e}*x^2+${f}`;
+      console.log(this.expStr);
+      this.evalOne = math.compile(this.expStr).evaluate;
+      // this.derivEvalOne = math.derivative(this.expStr).evaluate;
+      this.a = a;
+   }
+   
+   lossGradients(Y_real) {
+      console.log(Y_real);
+      let N = Y_real.length;
+      let lossGradient = 0.0;
+      for (const i in Y_real) {
+         // console.log(i);
+         lossGradient += 1 / N * this.a * ((2.71828**(i0)) ** (this.a - 1));
+      }
+      return lossGradient;
+   }
+   
+}
+
 
 class CalibrateDebevec {
    /**
@@ -189,22 +205,16 @@ class CalibrateDebevec {
          // const svd = new SVD(new Matrix(A));
 
          // const logResponseCurve = solve....
-         let logResponseCurvePolynomial = new PolynomialResponseFunction([1.0, 1.0, 1.0, 1.0, 1.0, 0.0]);
+         let logResponseCurvePolynomial = new GammaResponseFunction(2.2);
          let delta = 0.01;
          for (let epoch = 0; epoch < 1000; epoch++) {
-            let new_coeffs = math.subtract(
-               math.matrix(logResponseCurvePolynomial.coeffs),
-               math.multiply(
-                  delta, 
-                  math.matrix(logResponseCurvePolynomial.lossGradients(B))
-               )
-            ).toArray();
-            console.log(new_coeffs);
-            logResponseCurvePolynomial = new PolynomialResponseFunction(new_coeffs);
+            let new_coeff = logResponseCurvePolynomial.a - delta * logResponseCurvePolynomial.lossGradients(B);
+            console.log(new_coeff);
+            logResponseCurvePolynomial = new GammaResponseFunction(new_coeff);
          }
-         let range = Array.from({ length: B.to2DArray().length }, (_, i) => i);
-         let logResponseCurve = range.map(logResponseCurvePolynomial.eval);
-         let responseCurve = logResponseCurve.map(value => Math.exp(value[0]));
+         let range = Array.from({ length: B.length }, (_, i) => i);
+         let logResponseCurve = range.map(value => logResponseCurvePolynomial.evalOne({ x: 2.71828**value }));
+         let responseCurve = logResponseCurve // .map(value => Math.exp(value));
          console.log('Solution x:', responseCurve.slice(0, LDR_SIZE));
          responseCurves.push(responseCurve.slice(0, LDR_SIZE));
       }
