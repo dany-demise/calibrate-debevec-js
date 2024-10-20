@@ -32,60 +32,6 @@ class PointRGB {
    }
 }
 
-class PolynomialResponseFunction {
-   // Models the function as a 5 deg. polynomial
-   constructor([d,e,f]) {
-      this.expStr = `${d}*x^4+${e}*x^2+${f}`; // `${a}*x^10+${b}*x^8+${c}*x^6+${d}*x^4+${e}*x^2+${f}`;
-      console.log(this.expStr);
-      this.evalOne = math.compile(this.expStr).evaluate;
-      // this.derivEvalOne = math.derivative(this.expStr).evaluate;
-      this.coeffs = [d,e,f];
-   }
-
-   lossGradients(Y_real) {
-      console.log(Y_real);
-      let lossGradientsValues = [];
-      for (const exponent in this.coeffs) {
-          // let coeff = this.coeffs[exponent];
-          let N = Y_real.length;
-          let lossGradient = 0.0;
-          for (const i in Y_real) {
-             // console.log(i);
-             lossGradient += (Y_real[i] - this.evalOne({x:i})) * i ** exponent;
-          }
-          lossGradient = -2 / N * lossGradient;
-          lossGradientsValues.push(lossGradient);
-      }
-      console.log(lossGradientsValues);
-      return lossGradientsValues;
-   }
-   
-}
-
-class GammaResponseFunction {
-   // Models the function as a 5 deg. polynomial
-   constructor(a) {
-      this.expStr = `x^${a}`; // `${a}*x^10+${b}*x^8+${c}*x^6+${d}*x^4+${e}*x^2+${f}`;
-      console.log(this.expStr);
-      this.evalOne = math.compile(this.expStr).evaluate;
-      // this.derivEvalOne = math.derivative(this.expStr).evaluate;
-      this.a = a;
-   }
-   
-   lossGradients(Y_real) {
-      console.log(Y_real);
-      let N = Y_real.length;
-      let lossGradient = 0.0;
-      for (const i in Y_real) {
-         // console.log(i);
-         lossGradient += 1 / N * this.a * ((2.71828**(i0)) ** (this.a - 1));
-      }
-      return lossGradient;
-   }
-   
-}
-
-
 class CalibrateDebevec {
    /**
     * Creates n instance of CalibrateDebevec.
@@ -200,23 +146,40 @@ class CalibrateDebevec {
             k++;
          }
 
-         // Right singular vectors (n x n)
-         // const { Matrix, SVD, QR } = mlMatrix;
-         // const svd = new SVD(new Matrix(A));
+         // SVD is used in the Debevc & Malik paper to solve for the log response
+         // after exeperimentation, seems like OpenCV implements their own SVD secret
+         // bamboozle, so our results with the classic SVD look a bit shit...
 
-         // const logResponseCurve = solve....
-         let logResponseCurvePolynomial = new GammaResponseFunction(2.2);
-         let delta = 0.01;
+         // Right singular vectors (n x n)
+         // const { Matrix, SVD } = mlMatrix;
+         // const svd = new SVD(new Matrix(A));
+         // const logResponseCurve = svd.solve(B);
+
+         // Let' try with a gradient descent...
+         
+         let xArray = []; // On cree une liste de n elements (meme taille que B) qui simule log(gamma(i, 2.2))
+         xArray.push(Math.log(0.125)); // Pour ne pas avoir log(0)
+         for (let i = 1; i < math.size(A)[1]; i++ ) { xArray.push(Math.log((i**2.2))); }
+         let x = math.matrix(xArray)
+
+         
+         let A_T = math.transpose(A);
+         let delta = 0.1
+
          for (let epoch = 0; epoch < 1000; epoch++) {
-            let new_coeff = logResponseCurvePolynomial.a - delta * logResponseCurvePolynomial.lossGradients(B);
-            console.log(new_coeff);
-            logResponseCurvePolynomial = new GammaResponseFunction(new_coeff);
+            let Ax_minus_B = math.subtract(math.multiply(A, x), B);
+            console.log(Ax_minus_B);
+            console.log(A_T);
+            console.log(math.dotMultiply(2 , A_T));
+
+            let xGradients = math.multiply(Ax_minus_B, math.dotMultiply(2 , A_T));
+            x = math.subtract(x, math.multiply(delta, xGradients));       
          }
-         let range = Array.from({ length: B.length }, (_, i) => i);
-         let logResponseCurve = range.map(value => logResponseCurvePolynomial.evalOne({ x: 2.71828**value }));
-         let responseCurve = logResponseCurve // .map(value => Math.exp(value));
-         console.log('Solution x:', responseCurve.slice(0, LDR_SIZE));
-         responseCurves.push(responseCurve.slice(0, LDR_SIZE));
+
+         console.log(x);
+         
+         // console.log('Solution x:', responseCurve.slice(0, LDR_SIZE));
+         // responseCurves.push(responseCurve.slice(0, LDR_SIZE));
       }
       return responseCurves;
    }
