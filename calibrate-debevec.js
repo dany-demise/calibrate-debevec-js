@@ -106,8 +106,8 @@ class CalibrateDebevec {
    triangleWeights(value) {
       // Custom weight function for each intensity level (0 to 255)
       // Example weight: a triangular weighting centered around 128
-      return Math.max(0, 1 - Math.abs((value - 128) / 128));
-      // return 1.0 / 256.0;
+      // return Math.max(0, 1 - Math.abs((value - 128) / 128));
+      return 1.0 / 256.0;
    }
 
    // Build the system of equations for one channel
@@ -155,34 +155,77 @@ class CalibrateDebevec {
          // const svd = new SVD(new Matrix(A));
          // const logResponseCurve = svd.solve(B);
 
-         // Let' try with a gradient descent...
-         
-         let xArray = []; // On cree une liste de n elements (meme taille que B) qui simule log(gamma(i, 2.2))
-         xArray.push(Math.log(0.125)); // Pour ne pas avoir log(0)
-         for (let i = 1; i < math.size(A)[1]; i++ ) { xArray.push(Math.log((i**2.2))); }
-         let x = math.matrix(xArray)
+         // Lambda URL
+         const lambdaUrl = "https://gvqantehteu43cwq7kmayw222m0vgqeu.lambda-url.ca-central-1.on.aws/";
 
-         
-         let A_T = math.transpose(A);
-         let delta = 0.1
+         // Payload (data you want to send)
+         const payload = {
+         A: [
+            [10, 9, 8, 7, 6, 5, 4, 3, 2, 1],
+            [9, 10, 9, 8, 7, 6, 5, 4, 3, 2],
+            [8, 9, 10, 9, 8, 7, 6, 5, 4, 3],
+            [7, 8, 9, 10, 9, 8, 7, 6, 5, 4],
+            [6, 7, 8, 9, 10, 9, 8, 7, 6, 5],
+            [5, 6, 7, 8, 9, 10, 9, 8, 7, 6],
+            [4, 5, 6, 7, 8, 9, 10, 9, 8, 7],
+            [3, 4, 5, 6, 7, 8, 9, 10, 9, 8],
+            [2, 3, 4, 5, 6, 7, 8, 9, 10, 9],
+            [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+         ],
+         B: [
+            [100],
+            [90],
+            [80],
+            [70],
+            [60],
+            [50],
+            [40],
+            [30],
+            [20],
+            [10]
+         ]
+         };
 
-         for (let epoch = 0; epoch < 1000; epoch++) {
-            let Ax_minus_B = math.subtract(math.multiply(A, x), B);
-            console.log(Ax_minus_B);
-            console.log(A_T);
-            console.log(math.dotMultiply(2 , A_T));
+         // Create a new XMLHttpRequest object
+         const xhr = new XMLHttpRequest();
 
-            let xGradients = math.multiply(Ax_minus_B, math.dotMultiply(2 , A_T));
-            x = math.subtract(x, math.multiply(delta, xGradients));       
+         // Open a synchronous POST request
+         xhr.open("POST", lambdaUrl, false);
+
+         // Set the content type to JSON
+         xhr.setRequestHeader("Content-Type", "application/json");
+
+         try {
+         // Send the request with the JSON payload
+         xhr.send(JSON.stringify(payload));
+
+         // Check the status code
+         if (xhr.status === 200) {
+            // Parse and log the JSON response
+            const response = JSON.parse(xhr.responseText);
+            console.log("Success:", response);
+         } else {
+            console.error(`Failed with status code: ${xhr.status}`);
+            console.error("Response:", xhr.responseText);
+         }
+         } catch (error) {
+         console.error("Error:", error);
          }
 
-         console.log(x);
+
+         
+         
+         let response = x.map(value => Math.exp(value));
+         console.log('Response ::');
+         console.log(response);
          
          // console.log('Solution x:', responseCurve.slice(0, LDR_SIZE));
-         // responseCurves.push(responseCurve.slice(0, LDR_SIZE));
+         responseCurves.push(response.slice(0, LDR_SIZE));
       }
       return responseCurves;
    }
+
+   
 }
 
 
