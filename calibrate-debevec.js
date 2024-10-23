@@ -190,7 +190,7 @@ class CalibrateDebevec {
          const xhr = new XMLHttpRequest();
 
          // Open a synchronous POST request
-         xhr.open("POST", lambdaUrl, false);
+         // xhr.open("POST", lambdaUrl, false);
 
          // Set the content type to JSON
          xhr.setRequestHeader("Content-Type", "application/json");
@@ -204,8 +204,7 @@ class CalibrateDebevec {
             
                   // Handle the response when readyState changes
                   xhr.onreadystatechange = function() {
-                     if (xhr.readyState === 4) {  // 4 means the request is done
-                        if (xhr.status === 200) { // HTTP status 200 is a successful request
+                        if (xhr.status == 200) { // HTTP status 200 is a successful request
                               // Parse and log the JSON response
                               const response = JSON.parse(xhr.responseText);
                               console.log("Success:", response);
@@ -213,7 +212,6 @@ class CalibrateDebevec {
                               console.error(`Failed with status code: ${xhr.status}`);
                               console.error("Response:", xhr.responseText);
                         }
-                     }
                   };
             
                   // Send the request with the JSON payload
