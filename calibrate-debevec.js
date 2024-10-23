@@ -197,7 +197,7 @@ class CalibrateDebevec {
 
          try {
                   // Open a connection (assuming you already did xhr.open)
-                  xhr.open('POST', 'your-url-here', true);
+                  xhr.open('POST', lambdaUrl, true);
             
                   // Set appropriate headers if needed (e.g., for JSON)
                   xhr.setRequestHeader('Content-Type', 'application/json');
