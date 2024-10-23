@@ -196,21 +196,32 @@ class CalibrateDebevec {
          xhr.setRequestHeader("Content-Type", "application/json");
 
          try {
-         // Send the request with the JSON payload
-         xhr.send(JSON.stringify(payload));
-
-         // Check the status code
-         if (xhr.status === 200) {
-            // Parse and log the JSON response
-            const response = JSON.parse(xhr.responseText);
-            console.log("Success:", response);
-         } else {
-            console.error(`Failed with status code: ${xhr.status}`);
-            console.error("Response:", xhr.responseText);
-         }
-         } catch (error) {
-         console.error("Error:", error);
-         }
+                  // Open a connection (assuming you already did xhr.open)
+                  xhr.open('POST', 'your-url-here', true);
+            
+                  // Set appropriate headers if needed (e.g., for JSON)
+                  xhr.setRequestHeader('Content-Type', 'application/json');
+            
+                  // Handle the response when readyState changes
+                  xhr.onreadystatechange = function() {
+                     if (xhr.readyState === 4) {  // 4 means the request is done
+                        if (xhr.status === 200) { // HTTP status 200 is a successful request
+                              // Parse and log the JSON response
+                              const response = JSON.parse(xhr.responseText);
+                              console.log("Success:", response);
+                        } else {
+                              console.error(`Failed with status code: ${xhr.status}`);
+                              console.error("Response:", xhr.responseText);
+                        }
+                     }
+                  };
+            
+                  // Send the request with the JSON payload
+                  xhr.send(JSON.stringify(payload));
+            
+            } catch (error) {
+                  console.error("Error:", error);
+            }
 
 
          
