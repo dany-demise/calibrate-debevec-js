@@ -106,6 +106,7 @@ class CalibrateDebevec {
    triangleWeights(value) {
        // The weight increases from 0 to 127 and then decreases back to 0
        // The weights at value 127 and 128 should both be 127
+      // see : https://github.com/opencv/opencv/issues/24966
        if (value >= 128) { return 127 - Math.abs(value - 127) + 1; }
        else { return 127 - Math.abs(value - 127); }
    }
