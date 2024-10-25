@@ -107,8 +107,8 @@ class CalibrateDebevec {
        // The weight increases from 0 to 127 and then decreases back to 0
        // The weights at value 127 and 128 should both be 127
       // see : https://github.com/opencv/opencv/issues/24966
-       if (value >= 128) { return 127 - Math.abs(value - 127) + 1; }
-       else { return 127 - Math.abs(value - 127); }
+       if (value >= 128) { return 127 - Math.abs(value - 127) + 1 + 1; }
+       else { return 127 - Math.abs(value - 127) + 1; }
    }
 
    // Build the system of equations for one channel
