@@ -129,7 +129,7 @@ class CalibrateDebevec {
 
                A = math.subset(A, math.index(k, val), weight);
                A = math.subset(A, math.index(k, LDR_SIZE + i), -weight);
-               B = math.subset(B, math.index(k, 0), weight * Math.log(exposureTimes[j]));
+               B = math.subset(B, math.index(k, 0), weight * Math.log(exposureTimes[j]*1000000));
                k++;
             }
          }
@@ -158,78 +158,57 @@ class CalibrateDebevec {
          // Lambda URL
          const lambdaUrl = "https://gvqantehteu43cwq7kmayw222m0vgqeu.lambda-url.ca-central-1.on.aws/";
 
+         // console.log(JSON.stringify(A));
+
+         // B = B.map(value => value[0]);
+
          // Payload (data you want to send)
          const payload = {
-         A: [
-            [10, 9, 8, 7, 6, 5, 4, 3, 2, 1],
-            [9, 10, 9, 8, 7, 6, 5, 4, 3, 2],
-            [8, 9, 10, 9, 8, 7, 6, 5, 4, 3],
-            [7, 8, 9, 10, 9, 8, 7, 6, 5, 4],
-            [6, 7, 8, 9, 10, 9, 8, 7, 6, 5],
-            [5, 6, 7, 8, 9, 10, 9, 8, 7, 6],
-            [4, 5, 6, 7, 8, 9, 10, 9, 8, 7],
-            [3, 4, 5, 6, 7, 8, 9, 10, 9, 8],
-            [2, 3, 4, 5, 6, 7, 8, 9, 10, 9],
-            [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-         ],
-         B: [
-            [100],
-            [90],
-            [80],
-            [70],
-            [60],
-            [50],
-            [40],
-            [30],
-            [20],
-            [10]
-         ]
+            A: JSON.stringify(A),
+            B: JSON.stringify(B)         
          };
 
+         console.log(payload);
+
          // Create a new XMLHttpRequest object
-         const xhr = new XMLHttpRequest();
-
-         // Open a synchronous POST request
-         // xhr.open("POST", lambdaUrl, false);
-
-         // Set the content type to JSON
-         xhr.setRequestHeader("Content-Type", "application/json");
+         const xhr = new XMLHttpRequest(); 
+         let response;        
 
          try {
-                  // Open a connection (assuming you already did xhr.open)
-                  xhr.open('POST', lambdaUrl, true);
-            
-                  // Set appropriate headers if needed (e.g., for JSON)
-                  xhr.setRequestHeader('Content-Type', 'application/json');
-            
-                  // Handle the response when readyState changes
-                  xhr.onreadystatechange = function() {
-                        if (xhr.status == 200) { // HTTP status 200 is a successful request
-                              // Parse and log the JSON response
-                              const response = JSON.parse(xhr.responseText);
-                              console.log("Success:", response);
-                        } else {
-                              console.error(`Failed with status code: ${xhr.status}`);
-                              console.error("Response:", xhr.responseText);
-                        }
-                  };
-            
-                  // Send the request with the JSON payload
-                  xhr.send(JSON.stringify(payload));
-            
-            } catch (error) {
-                  console.error("Error:", error);
+            // Open a synchronous POST request (third parameter is false)
+            xhr.open("POST", lambdaUrl, false);
+        
+            // Set appropriate headers if needed (e.g., for JSON)
+            xhr.setRequestHeader('Content-Type', 'application/json');
+        
+            // Send the request with the JSON payload
+            xhr.send(JSON.stringify(payload));
+        
+            // Check the response status immediately after sending
+            if (xhr.status === 200) {
+                // Parse and log the JSON response
+                response = JSON.parse(xhr.responseText);
+                console.log("Success:", response);
+            } else {
+                // Handle the failure case
+                console.error(`Failed with status code: ${xhr.status}`);
+                console.error("Response:", xhr.responseText);
             }
+            
+        } catch (error) {
+            // Catch and log any errors that occur during the request
+            console.error("Error:", error);
+        }
 
 
          
          
-         let response = x.map(value => Math.exp(value));
+         let crf = response['result'].map(value => Math.exp(value[0]));
          console.log('Response ::');
-         console.log(response);
+         console.log(crf);
          
          // console.log('Solution x:', responseCurve.slice(0, LDR_SIZE));
-         responseCurves.push(response.slice(0, LDR_SIZE));
+         responseCurves.push(crf.slice(0, LDR_SIZE));
       }
       return responseCurves;
    }
