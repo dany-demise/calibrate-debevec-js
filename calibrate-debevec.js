@@ -130,7 +130,7 @@ class CalibrateDebevec {
 
                A = math.subset(A, math.index(k, val), weight);
                A = math.subset(A, math.index(k, LDR_SIZE + i), -weight);
-               B = math.subset(B, math.index(k, 0), weight * Math.log(exposureTimes[j]*1000000));
+               B = math.subset(B, math.index(k, 0), weight * Math.log(exposureTimes[j]));
                k++;
             }
          }
