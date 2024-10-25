@@ -115,7 +115,7 @@ class CalibrateDebevec {
        // see : https://github.com/opencv/opencv/issues/24966
        // if (value >= 128) { return 127 - Math.abs(value - 127) + 1 + 1; }
        // else { return 127 - Math.abs(value - 127) + 1; }
-       return 255 * gaussianWeight(value / 255);
+       return 255 * this.gaussianWeight(value / 255);
    }
 
    // Build the system of equations for one channel
