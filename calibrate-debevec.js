@@ -103,12 +103,19 @@ class CalibrateDebevec {
 
    }
 
+   gaussianWeight(x) {
+       const mean = 0.5;
+       const sigma = 0.1; // Adjust for a narrower or wider spread if desired
+       return Math.exp(-Math.pow(x - mean, 2) / (2 * Math.pow(sigma, 2)));
+   }
+
    triangleWeights(value) {
        // The weight increases from 0 to 127 and then decreases back to 0
        // The weights at value 127 and 128 should both be 127
-      // see : https://github.com/opencv/opencv/issues/24966
-       if (value >= 128) { return 127 - Math.abs(value - 127) + 1 + 1; }
-       else { return 127 - Math.abs(value - 127) + 1; }
+       // see : https://github.com/opencv/opencv/issues/24966
+       // if (value >= 128) { return 127 - Math.abs(value - 127) + 1 + 1; }
+       // else { return 127 - Math.abs(value - 127) + 1; }
+       return 255 * gaussianWeight(value / 255);
    }
 
    // Build the system of equations for one channel
