@@ -105,7 +105,7 @@ class CalibrateDebevec {
 
    gaussianWeight(x) {
        const mean = 0.5;
-       const sigma = 0.1; // Adjust for a narrower or wider spread if desired
+       const sigma = 0.1478; // Adjust for a narrower or wider spread if desired
        return Math.exp(-Math.pow(x - mean, 2) / (2 * Math.pow(sigma, 2)));
    }
 
